@@ -1,8 +1,8 @@
 /*
  * @Author: toan.nguyen
  * @Date:   2016-04-23 10:39:16
- * @Last Modified by:   toan.nguyen
- * @Last Modified time: 2016-10-07 16:27:40
+* @Last modified by:   nhutdev
+* @Last modified time: 2016-10-16T20:12:19+07:00
  */
 
 'use strict';
@@ -10,7 +10,7 @@
 const Hoek = require('hoek');
 const req = require('request-promise');
 const requestErrors = require('request-promise/errors');
-const helpers = require('nexx-helpers');
+const helpers = require('node-helpers');
 
 const bearerScheme = helpers.auth.Bearer;
 
@@ -22,7 +22,7 @@ class OAuthBearerAuthenticator {
    * @param  {Object} opts Option data
    */
   constructor(opts) {
-    Hoek.assert(typeof (opts) === 'object', 'Authenticator config must be a object');
+    Hoek.assert(typeof(opts) === 'object', 'Authenticator config must be a object');
     let cloneCfg = Hoek.clone(opts);
     cloneCfg.tokenType = 'Bearer';
     cloneCfg.validateFunc = this.validate;
