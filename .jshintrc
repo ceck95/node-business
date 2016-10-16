@@ -1,0 +1,17 @@
+{
+  "undef": false,
+  "unused": true,
+  "esversion": 6,
+  "globalstrict": true,
+  "globals": {
+    "require": true,
+    "module": true,
+    "console": true,
+    "Buffer": true,
+    "process": true,
+    "__dirname": true
+  },
+  "ignoreDelimiters": [
+    { "start": "start-non-standard", "end": "end-non-standard" }
+  ]
+}
