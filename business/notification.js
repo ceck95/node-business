@@ -1,15 +1,15 @@
 /*
  * @Author: toan.nguyen
  * @Date:   2016-05-21 22:25:40
- * @Last Modified by:   toan.nguyen
- * @Last Modified time: 2016-10-11 12:13:33
+* @Last modified by:   nhutdev
+* @Last modified time: 2016-10-16T20:14:58+07:00
  */
 
 'use strict';
 
 const Hoek = require('hoek');
 const BPromise = require('bluebird');
-const helpers = require('nexx-helpers');
+const helpers = require('node-helpers');
 
 class NotificationBussiness {
 
@@ -130,7 +130,7 @@ class NotificationBussiness {
     params.deviceToken = params.deviceToken || [];
     params.alias = params.alias || [];
 
-    if (typeof (profile) === 'object') {
+    if (typeof(profile) === 'object') {
       let userId = profile.uid || profile.userId;
 
       if (params.exceptUsers ? params.exceptUsers.indexOf(userId) !== -1 : false) {

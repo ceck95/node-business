@@ -1,15 +1,15 @@
 /*
  * @Author: toan.nguyen
  * @Date:   2016-05-21 22:25:40
- * @Last Modified by:   toan.nguyen
- * @Last Modified time: 2016-10-11 15:04:03
+* @Last modified by:   nhutdev
+* @Last modified time: 2016-10-16T20:15:02+07:00
  */
 
 'use strict';
 
 const Hoek = require('hoek');
 const BPromise = require('bluebird');
-const helpers = require('nexx-helpers');
+const helpers = require('node-helpers');
 
 const nexGosms = require('nex-gosms');
 const optionTypes = helpers.ttypes.options;
@@ -108,21 +108,21 @@ class ProfileBusiness {
           status = helpers.Const.status;
 
         switch (profile.status) {
-        case status.INACTIVE:
-          errors = helpers.Error.translate({
-            code: '313'
-          });
-          return reject(errors);
-        case status.DELETED:
-          errors = helpers.Error.translate({
-            code: '314'
-          });
-          return reject(errors);
-        case status.DISABLED:
-          errors = helpers.Error.translate({
-            code: '312'
-          });
-          return reject(errors);
+          case status.INACTIVE:
+            errors = helpers.Error.translate({
+              code: '313'
+            });
+            return reject(errors);
+          case status.DELETED:
+            errors = helpers.Error.translate({
+              code: '314'
+            });
+            return reject(errors);
+          case status.DISABLED:
+            errors = helpers.Error.translate({
+              code: '312'
+            });
+            return reject(errors);
         }
 
         self.updateDeviceMeta(request, profile).then(result => {
@@ -244,21 +244,21 @@ class ProfileBusiness {
           status = helpers.Const.status;
 
         switch (profile.status) {
-        case status.INACTIVE:
-          errors = helpers.Error.translate({
-            code: '313'
-          });
-          return reject(errors);
-        case status.DELETED:
-          errors = helpers.Error.translate({
-            code: '314'
-          });
-          return reject(errors);
-        case status.DISABLED:
-          errors = helpers.Error.translate({
-            code: '312'
-          });
-          return reject(errors);
+          case status.INACTIVE:
+            errors = helpers.Error.translate({
+              code: '313'
+            });
+            return reject(errors);
+          case status.DELETED:
+            errors = helpers.Error.translate({
+              code: '314'
+            });
+            return reject(errors);
+          case status.DISABLED:
+            errors = helpers.Error.translate({
+              code: '312'
+            });
+            return reject(errors);
         }
 
         self.updateDeviceMeta(request, profile).then(result => {
@@ -305,7 +305,7 @@ class ProfileBusiness {
 
     let metadata = profile.metadata || {};
 
-    if (typeof (metadata) === 'string') {
+    if (typeof(metadata) === 'string') {
       metadata = JSON.parse(profile.metadata);
     }
 
@@ -404,46 +404,46 @@ class ProfileBusiness {
       // save verification code for profile
 
       switch (verificationCfg.transport) {
-      case 'sms':
-        if (!profile.phoneNumber) {
-          let errors = helpers.Error.translate({
-            code: '307'
+        case 'sms':
+          if (!profile.phoneNumber) {
+            let errors = helpers.Error.translate({
+              code: '307'
+            });
+            request.log(['info', 'verfication', 'send'], errors);
+            return reject(errors);
+          }
+
+          let thriftForm = profile.toThriftVerificationForm(),
+            smsCfg = request.config.sms.default,
+            smsClient = new nexGosms(smsCfg),
+            phoneNumber = helpers.Data.internationalPhoneNumber(profile.phoneNumber, request.config.i18n.country),
+            message = request.translator.translate(verificationCfg.smsKey, {
+              params: {
+                verificationCode: verificationCode
+              }
+            });
+
+          if (!message) {
+            message = `Verification code ${verificationCode}`;
+          }
+
+          return smsClient.sendBrand({
+            phoneNumber: phoneNumber,
+            message: message
+          }).then((result) => {
+            return userStore.updateVerificationCode(thriftForm).then(() => {
+              return resolve(verificationCode);
+            });
+          }).catch(e => {
+            request.log(['error'], e);
+            return reject(e);
           });
-          request.log(['info', 'verfication', 'send'], errors);
-          return reject(errors);
-        }
-
-        let thriftForm = profile.toThriftVerificationForm(),
-          smsCfg = request.config.sms.default,
-          smsClient = new nexGosms(smsCfg),
-          phoneNumber = helpers.Data.internationalPhoneNumber(profile.phoneNumber, request.config.i18n.country),
-          message = request.translator.translate(verificationCfg.smsKey, {
-            params: {
-              verificationCode: verificationCode
-            }
-          });
-
-        if (!message) {
-          message = `Verification code ${verificationCode}`;
-        }
-
-        return smsClient.sendBrand({
-          phoneNumber: phoneNumber,
-          message: message
-        }).then((result) => {
-          return userStore.updateVerificationCode(thriftForm).then(() => {
-            return resolve(verificationCode);
-          });
-        }).catch(e => {
-          request.log(['error'], e);
-          return reject(e);
-        });
 
 
-      case 'email':
-        return sendEmailFunc();
-      default:
-        return sendEmailFunc();
+        case 'email':
+          return sendEmailFunc();
+        default:
+          return sendEmailFunc();
       }
     });
   }
