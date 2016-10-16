@@ -29,6 +29,6 @@
     "thrift": "^0.9.3",
     "vision": "^4.1.0",
     "nex-gosms": "git+ssh://git@bitbucket.org:nextlevelteam/nex-gosms.git",
-    "nexx-helpers": "git+ssh://git@bitbucket.org/nextlevelteam/node-nexx-helpers.git"
+    "nexx-helpers": "git+ssh://git@github.com:nhutuit/node-helpers.git"
   }
 }
