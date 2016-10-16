@@ -1,14 +1,14 @@
 /*
  * @Author: toan.nguyen
  * @Date:   2016-04-23 10:39:16
- * @Last Modified by:   toan.nguyen
- * @Last Modified time: 2016-10-11 16:51:41
+* @Last modified by:   nhutdev
+* @Last modified time: 2016-10-16T20:10:50+07:00
  */
 
 'use strict';
 
 const Hoek = require('hoek');
-const helpers = require('nexx-helpers');
+const helpers = require('node-helpers');
 
 const bearerScheme = helpers.auth.Bearer;
 
@@ -20,7 +20,7 @@ class BasicAuthenticator {
    * @param  {Object} opts Option data
    */
   constructor(opts) {
-    Hoek.assert(typeof (opts) === 'object', 'Authenticator config must be a object');
+    Hoek.assert(typeof(opts) === 'object', 'Authenticator config must be a object');
     Hoek.assert(opts.storeName, 'OAuth store must not be empty');
 
     let cloneCfg = Hoek.clone(opts);
@@ -55,7 +55,10 @@ class BasicAuthenticator {
     let ds = request.dataStore.getStore(settings.storeName),
       decodedToken = new Buffer(token, 'base64').toString('ascii'),
       clientCredential = decodedToken.split(':'),
-      notFound = request.errorManager.translate({ code: '303', source: 'authorization' });
+      notFound = request.errorManager.translate({
+        code: '303',
+        source: 'authorization'
+      });
 
     if (clientCredential.length == 2) {
       let clientId = clientCredential[0],
