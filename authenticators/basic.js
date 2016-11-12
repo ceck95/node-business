@@ -2,7 +2,7 @@
  * @Author: toan.nguyen
  * @Date:   2016-04-23 10:39:16
 * @Last modified by:   nhutdev
-* @Last modified time: 2016-10-16T20:10:50+07:00
+* @Last modified time: 2016-11-12T09:31:59+07:00
  */
 
 'use strict';
@@ -47,12 +47,9 @@ class BasicAuthenticator {
    */
   validate(token, settings, callback) {
     let request = this;
-
     request.log(['debug', 'authorize'], 'Authorizes basic token: ' + token);
 
-    // Use a real strategy here,
-    // comparing with a token from your database
-    let ds = request.dataStore.getStore(settings.storeName),
+    let ds = request.dataStore.getStore('ClientId'),
       decodedToken = new Buffer(token, 'base64').toString('ascii'),
       clientCredential = decodedToken.split(':'),
       notFound = request.errorManager.translate({
@@ -67,27 +64,16 @@ class BasicAuthenticator {
       request.log(['debug', 'authorize'], 'Client ID: ' + clientId + '. Client Secret: ' +
         clientSecret);
 
-      return ds.getOneByClientId(clientId).then((response) => {
-        if (response.clientSecret !== clientSecret) {
+      return ds.getOne(ds.createModel({
+        clientId: clientId
+      }).toThriftQuery()).then((response) => {
+        if (response.clientId !== clientId) {
           return callback(null, false, notFound);
         }
-
-        // var grantType = request.payload.data.grantType;
-        // if (response.authorizationGrantType !== grantType) {
-        //   var er1 = 'invalid_grant',
-        //     message1 = 'The provided authorization grant is not allowed.';
-
-        //   request.log(['error', 'oauth'], er1);
-        //   return callback(null, false, {
-        //     code: er1,
-        //     message: message1
-        //   });
-        // }
 
         return callback(null, true, response);
 
       }).catch(e => {
-        console.error(e);
         request.log(['error', 'authenticator', 'basic'], e);
         let errors = helpers.Error.translate(e),
           code = helpers.Error.getCode(errors);
