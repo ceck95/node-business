@@ -2,7 +2,7 @@
  * @Author: toan.nguyen
  * @Date:   2016-04-23 10:39:16
 * @Last modified by:   nhutdev
-* @Last modified time: 2016-10-16T20:12:14+07:00
+* @Last modified time: 2017-02-16T15:50:37+07:00
  */
 
 'use strict';
@@ -69,7 +69,7 @@ class OAuthBearerLocalAuthenticator {
       return self.dataStore.userStore.getOneByPk(token.userId).then((user) => {
         return callback(null, true, {
           token: token,
-          user: user
+          profile: user
         });
       }).catch((e) => {
         let errors = helpers.Error.translate(e),

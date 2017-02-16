@@ -2,7 +2,7 @@
  * @Author: toan.nguyen
  * @Date:   2016-04-23 10:39:16
 * @Last modified by:   nhutdev
-* @Last modified time: 2016-11-12T09:31:59+07:00
+* @Last modified time: 2017-02-16T15:49:01+07:00
  */
 
 'use strict';
@@ -57,34 +57,37 @@ class BasicAuthenticator {
         source: 'authorization'
       });
 
-    if (clientCredential.length == 2) {
-      let clientId = clientCredential[0],
-        clientSecret = clientCredential[1];
+    // if (clientCredential.length == 2) {
+    //   let clientId = clientCredential[0],
+    //     clientSecret = clientCredential[1];
+    //
+    //   request.log(['debug', 'authorize'], 'Client ID: ' + clientId + '. Client Secret: ' +
+    //     clientSecret);
 
-      request.log(['debug', 'authorize'], 'Client ID: ' + clientId + '. Client Secret: ' +
-        clientSecret);
+    return ds.getOne(ds.createModel({
+      clientId: token
+    }).toThriftQuery()).then((response) => {
+      if (response.clientId !== token) {
+        return callback(null, false, notFound);
+      }
 
-      return ds.getOne(ds.createModel({
-        clientId: clientId
-      }).toThriftQuery()).then((response) => {
-        if (response.clientId !== clientId) {
-          return callback(null, false, notFound);
-        }
-
-        return callback(null, true, response);
-
-      }).catch(e => {
-        request.log(['error', 'authenticator', 'basic'], e);
-        let errors = helpers.Error.translate(e),
-          code = helpers.Error.getCode(errors);
-
-        if (code == '202') {
-          return callback(null, false, notFound);
-        }
-        return callback(null, false, errors);
+      return callback(null, true, {
+        expiry: response.expiry,
+        applicationId: response.applicationId
       });
 
-    }
+    }).catch(e => {
+      request.log(['error', 'authenticator', 'basic'], e);
+      let errors = helpers.Error.translate(e),
+        code = helpers.Error.getCode(errors);
+
+      if (code == '202') {
+        return callback(null, false, notFound);
+      }
+      return callback(null, false, errors);
+    });
+
+    // }
 
     return callback(null, false, notFound);
   }
