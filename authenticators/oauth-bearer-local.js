@@ -2,7 +2,7 @@
  * @Author: toan.nguyen
  * @Date:   2016-04-23 10:39:16
 * @Last modified by:   nhutdev
-* @Last modified time: 2017-02-16T15:50:37+07:00
+* @Last modified time: 2017-02-20T21:44:00+07:00
  */
 
 'use strict';
@@ -10,6 +10,7 @@
 const Hoek = require('hoek');
 const moment = require('moment');
 const helpers = require('node-helpers');
+const config = require('config');
 
 const bearerScheme = helpers.auth.Bearer;
 
@@ -52,7 +53,6 @@ class OAuthBearerLocalAuthenticator {
       expiredError = helpers.Error.translate({
         code: '301',
       });
-
     this.log(['debug', 'authorize-token'], 'Authorizes access token: ' + token);
 
     let model = tokenStore.createModel(),
@@ -66,7 +66,12 @@ class OAuthBearerLocalAuthenticator {
         return callback(null, false, expiredError);
       }
 
-      return self.dataStore.userStore.getOneByPk(token.userId).then((user) => {
+      let opts = {};
+      if (config.has('user.includes')) {
+        opts.includes = config.get('user.includes');
+      }
+
+      return self.dataStore.userStore.getOneRelationByPk(token.userId, opts).then((user) => {
         return callback(null, true, {
           token: token,
           profile: user
