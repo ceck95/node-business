@@ -3,7 +3,7 @@
  * @Date:   2017-02-25T09:26:40+07:00
  * @Email:  tranvannhut4495@gmail.com
 * @Last modified by:   nhutdev
-* @Last modified time: 2017-02-25T12:09:56+07:00
+* @Last modified time: 2017-02-25T13:11:20+07:00
  */
 
 
@@ -54,12 +54,12 @@ class OAuthBearerLocalAuthenticator {
       case 'Bearer':
         settings.tokenType = 'Bearer';
         let bearerLocal = new OAuthBearerLocal(settings);
-        bearerLocal.validate.apply(token, settings, callback);
+        bearerLocal.validate.call(this, token, settings, callback);
         break;
       case 'Basic':
         settings.tokenType = 'Basic';
         let basicLocal = new OAuthBasicLocal(settings);
-        basicLocal.validate.apply(token, settings, callback);
+        basicLocal.validate.call(this, token, settings, callback);
         break;
     }
 
