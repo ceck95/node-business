@@ -2,7 +2,7 @@
  * @Author: toan.nguyen
  * @Date:   2016-04-23 10:39:16
 * @Last modified by:   nhutdev
-* @Last modified time: 2017-02-16T15:49:01+07:00
+* @Last modified time: 2017-02-25T11:02:36+07:00
  */
 
 'use strict';
@@ -87,9 +87,6 @@ class BasicAuthenticator {
       return callback(null, false, errors);
     });
 
-    // }
-
-    return callback(null, false, notFound);
   }
 
   /**

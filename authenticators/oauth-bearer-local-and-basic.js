@@ -1,9 +1,11 @@
-/*
- * @Author: toan.nguyen
- * @Date:   2016-04-23 10:39:16
+/**
+ * @Author: Tran Van Nhut <nhutdev>
+ * @Date:   2017-02-25T09:26:40+07:00
+ * @Email:  tranvannhut4495@gmail.com
 * @Last modified by:   nhutdev
-* @Last modified time: 2017-02-25T09:43:04+07:00
+* @Last modified time: 2017-02-25T11:13:20+07:00
  */
+
 
 'use strict';
 
@@ -13,6 +15,8 @@ const helpers = require('node-helpers');
 const config = require('config');
 
 const bearerScheme = helpers.auth.Bearer;
+const OAuthBearerLocal = require('./oauth-bearer-local');
+const OAuthBasicLocal = require('./basic');
 
 class OAuthBearerLocalAuthenticator {
 
@@ -24,9 +28,8 @@ class OAuthBearerLocalAuthenticator {
   constructor(opts) {
     Hoek.assert(typeof(opts) === 'object', 'Authenticator config must be a object');
     let cloneCfg = Hoek.clone(opts);
-    cloneCfg.tokenType = ['Bearer', 'Basic'];
     cloneCfg.validateFunc = this.validate;
-
+    cloneCfg.tokenType = ['Bearer', 'Basic'];
     this.config = cloneCfg;
   }
 
@@ -46,67 +49,19 @@ class OAuthBearerLocalAuthenticator {
    * @return {Function}           Callback result
    */
   validate(token, settings, callback) {
-    // For convenience, the request object can be accessed
-    // from `this` within validateFunc.
-    let self = this,
-      tokenStore = this.dataStore.getStore(settings.tokenStore),
-      expiredError = helpers.Error.translate({
-        code: '301',
-      });
-    this.log(['debug', 'authorize-token'], 'Authorizes access token: ' + token);
 
-    let model = tokenStore.createModel(),
-      query = model.toThriftQuery({
-        accessToken: token
-      });
-
-    return tokenStore.getOne(query).then((token) => {
-      if (moment(token.expiresIn).isBefore(new Date())) {
-        console.error(token.expiresIn, new Date());
-        return callback(null, false, expiredError);
-      }
-
-      let opts = {};
-      if (config.has('user.includes')) {
-        opts.includes = config.get('user.includes');
-      }
-
-      return self.dataStore.userStore.getOneRelationByPk(token.userId, opts).then((user) => {
-        return callback(null, true, {
-          token: token,
-          profile: user
-        });
-      }).catch((e) => {
-        let errors = helpers.Error.translate(e),
-          code = helpers.Error.getCode(errors);
-
-        if (code == '202') {
-          let userNotFound = helpers.Error.translate({
-            code: '315'
-          });
-          return callback(null, false, userNotFound);
-        }
-
-        console.error(e);
-        return callback(null, false, errors);
-
-      });
-    }).catch((e) => {
-
-      let errors = helpers.Error.translate(e),
-        code = helpers.Error.getCode(errors);
-
-      if (code == '202') {
-        let revokeError = helpers.Error.translate({
-          code: '302'
-        });
-
-        return callback(null, false, revokeError);
-      }
-
-      console.error(e);
-      return callback(null, false, errors);
-    });
+    switch (settings.currentTokenType) {
+      case 'Bearer':
+        this.config.tokenType = 'Bearer';
+        let bearerLocal = new OAuthBearerLocal(this.config);
+        bearerLocal.validate(token, settings, callback);
+        break;
+      case 'Basic':
+        this.config.tokenType = 'Basic';
+        let basicLocal = new OAuthBasicLocal(this.config);
+        basicLocal.validate(token, settings, callback);
+        break;
+    }
 
   }
 
