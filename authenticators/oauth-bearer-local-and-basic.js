@@ -3,7 +3,7 @@
  * @Date:   2017-02-25T09:26:40+07:00
  * @Email:  tranvannhut4495@gmail.com
 * @Last modified by:   nhutdev
-* @Last modified time: 2017-02-25T11:13:20+07:00
+* @Last modified time: 2017-02-25T11:43:31+07:00
  */
 
 
@@ -50,7 +50,7 @@ class OAuthBearerLocalAuthenticator {
    */
   validate(token, settings, callback) {
 
-    switch (settings.currentTokenType) {
+    switch (settings.tokenTypeCurrent) {
       case 'Bearer':
         this.config.tokenType = 'Bearer';
         let bearerLocal = new OAuthBearerLocal(this.config);
