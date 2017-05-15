@@ -11,6 +11,7 @@ const Hoek = require('hoek');
 const moment = require('moment');
 const helpers = require('node-helpers');
 const config = require('config');
+const options = helpers.ttypes.options;
 
 const bearerScheme = helpers.auth.Bearer;
 
@@ -22,7 +23,7 @@ class OAuthBearerLocalAuthenticator {
    * @param  {Object} opts Option data
    */
   constructor(opts) {
-    Hoek.assert(typeof(opts) === 'object', 'Authenticator config must be a object');
+    Hoek.assert(typeof (opts) === 'object', 'Authenticator config must be a object');
     let cloneCfg = Hoek.clone(opts);
     cloneCfg.tokenType = ['Bearer', 'Basic'];
     cloneCfg.validateFunc = this.validate;
@@ -62,16 +63,20 @@ class OAuthBearerLocalAuthenticator {
 
     return tokenStore.getOne(query).then((token) => {
       if (moment(token.expiresIn).isBefore(new Date())) {
-        console.error(token.expiresIn, new Date());
+        // console.error(token.expiresIn, new Date());
         return callback(null, false, expiredError);
       }
 
-      let opts = {};
+      let opts = new options.SelectOptions(),
+        functionHandle = self.dataStore.userStore.getOneByPk(token.userId);
       if (config.has('user.includes')) {
         opts.includes = config.get('user.includes');
       }
+      if (config.has('user.customizeFunction')) {
+        functionHandle = self.dataStore.userStore.getOneRelationCustomize(token.userId, opts);
+      }
 
-      return self.dataStore.userStore.getOneRelationByPk(token.userId, opts).then((user) => {
+      return functionHandle.then((user) => {
         return callback(null, true, {
           token: token,
           profile: user
@@ -87,7 +92,6 @@ class OAuthBearerLocalAuthenticator {
           return callback(null, false, userNotFound);
         }
 
-        console.error(e);
         return callback(null, false, errors);
 
       });
