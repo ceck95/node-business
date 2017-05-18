@@ -11,7 +11,7 @@ const Hoek = require('hoek');
 const BPromise = require('bluebird');
 const helpers = require('node-helpers');
 
-const nexGosms = require('nex-gosms');
+// const nexGosms = require('nex-gosms');
 const optionTypes = helpers.ttypes.options;
 const req = require('request-promise');
 const requestErrors = require('request-promise/errors');
@@ -305,7 +305,7 @@ class ProfileBusiness {
 
     let metadata = profile.metadata || {};
 
-    if (typeof(metadata) === 'string') {
+    if (typeof (metadata) === 'string') {
       metadata = JSON.parse(profile.metadata);
     }
 
@@ -415,7 +415,7 @@ class ProfileBusiness {
 
           let thriftForm = profile.toThriftVerificationForm(),
             smsCfg = request.config.sms.default,
-            smsClient = new nexGosms(smsCfg),
+            // smsClient = new nexGosms(smsCfg),
             phoneNumber = helpers.Data.internationalPhoneNumber(profile.phoneNumber, request.config.i18n.country),
             message = request.translator.translate(verificationCfg.smsKey, {
               params: {
